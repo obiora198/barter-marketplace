@@ -8,11 +8,12 @@ import SearchBar from "./components/SearchBar";
 import CategoryCard from "./components/CategoryCard";
 import ListingCard from "./components/ListingCard";
 import {popularCategories, recentListings} from "./assets/data"; // Assuming you have a data file for sample data}
+import LoadingScreen from "./components/LoadingScreen";
 
 export default function HomePage() {
   const { data: session, status } = useSession();
 
-  if (status === "loading") return <p>Loading...</p>;
+  if (status === "loading") return <LoadingScreen />;
 
   return (
     <>
