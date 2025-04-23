@@ -37,11 +37,11 @@ export default function AuthButton() {
           className="flex items-center gap-2 cursor-pointer"
         >
           <img
-            src={session.user?.image || ""}
+            src={session.user?.image || "/user.png"}
             alt="User avatar"
             className="w-8 h-8 rounded-full"
           />
-          <span className="text-sm">{session.user?.name}</span>
+          <span className="text-sm">{session.user?.name || "User"}</span>
         </div>
 
         <button

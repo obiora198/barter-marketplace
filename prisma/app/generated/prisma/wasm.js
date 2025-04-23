@@ -110,13 +110,6 @@ Prisma.NullTypes = {
  * Enums
  */
 
-exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
-  ReadUncommitted: 'ReadUncommitted',
-  ReadCommitted: 'ReadCommitted',
-  RepeatableRead: 'RepeatableRead',
-  Serializable: 'Serializable'
-});
-
 exports.Prisma.AccountScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -145,13 +138,33 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   emailVerified: 'emailVerified',
   image: 'image',
-  listings: 'listings'
+  password: 'password',
+  bio: 'bio',
+  location: 'location',
+  rating: 'rating',
+  tradeCount: 'tradeCount'
 };
 
 exports.Prisma.VerificationTokenScalarFieldEnum = {
+  id: 'id',
   identifier: 'identifier',
   token: 'token',
   expires: 'expires'
+};
+
+exports.Prisma.ListingScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  images: 'images',
+  category: 'category',
+  condition: 'condition',
+  tradePreference: 'tradePreference',
+  location: 'location',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  ownerId: 'ownerId',
+  offers: 'offers'
 };
 
 exports.Prisma.SortOrder = {
@@ -164,17 +177,13 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
 
 exports.Prisma.ModelName = {
   Account: 'Account',
   Session: 'Session',
   User: 'User',
-  VerificationToken: 'VerificationToken'
+  VerificationToken: 'VerificationToken',
+  Listing: 'Listing'
 };
 
 /**

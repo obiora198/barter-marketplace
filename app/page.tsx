@@ -7,7 +7,7 @@ import AuthButton from "./components/AuthButton";
 import SearchBar from "./components/SearchBar";
 import CategoryCard from "./components/CategoryCard";
 import ListingCard from "./components/ListingCard";
-import {popularCategories, recentListings} from "./assets/data"; // Assuming you have a data file for sample data}
+import { popularCategories, recentListings } from "./assets/data"; // Assuming you have a data file for sample data}
 import LoadingScreen from "./components/LoadingScreen";
 
 export default function HomePage() {
@@ -24,19 +24,40 @@ export default function HomePage() {
 
       {/* Navigation Bar */}
       <nav className="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
-        <Link href="/" className="text-3xl font-bold text-indigo-600 flex items-center gap-2">
-          Barter <span className="text-xs text-gray-900 font-light">Marketplace</span>
+        <Link
+          href="/"
+          className="text-3xl font-bold text-indigo-600 flex items-center gap-2"
+        >
+          Barter{" "}
+          <span className="text-xs text-gray-900 font-light">Marketplace</span>
         </Link>
-        
+
         <div className="flex items-center space-x-4">
           <SearchBar />
-          <Link 
-            href="/create-listing" 
+          <Link
+            href="/create-listing"
             className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
           >
             Post Listing
           </Link>
-          <AuthButton />
+          {!session ? (
+            <Link
+              href={"/signin"}
+              className="text-gray-600 hover:text-indigo-600"
+            >
+              sign in
+            </Link>
+          ) : (
+            <>
+              {/* <Link
+                href={"/profile"}
+                className="text-gray-600 hover:text-indigo-600"
+              >
+                {session.user.name}
+              </Link> */}
+              <AuthButton />
+            </>
+          )}
         </div>
       </nav>
 
@@ -46,15 +67,16 @@ export default function HomePage() {
           Trade What You Have for What You Need
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Join our community of traders and exchange goods without money. Find items you want and offer what you have.
+          Join our community of traders and exchange goods without money. Find
+          items you want and offer what you have.
         </p>
         {!session && (
-          <button 
-            onClick={() => signIn('google')}
+          <Link
+            href={"/signin"}
             className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-lg font-medium"
           >
-            Get Started - Sign Up Free
-          </button>
+            Get Started
+          </Link>
         )}
       </section>
 
@@ -62,10 +84,12 @@ export default function HomePage() {
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Categories Section */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Popular Categories</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            Popular Categories
+          </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {popularCategories.map((category) => (
-              <CategoryCard 
+              <CategoryCard
                 key={category.id}
                 name={category.name}
                 icon={category.icon}
@@ -78,7 +102,9 @@ export default function HomePage() {
         {/* Recent Listings Section */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Recent Listings</h2>
+            <h2 className="text-2xl font-bold text-gray-800">
+              Recent Listings
+            </h2>
             <Link href="/browse" className="text-indigo-600 hover:underline">
               View All
             </Link>
@@ -99,7 +125,9 @@ export default function HomePage() {
 
         {/* How It Works Section */}
         <section className="bg-white rounded-lg shadow-sm p-8 mb-12">
-          <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">How TradeHub Works</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+            How TradeHub Works
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -114,7 +142,9 @@ export default function HomePage() {
               <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">2</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Find Items You Want</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Find Items You Want
+              </h3>
               <p className="text-gray-600">
                 Browse listings and make offers with items you have.
               </p>
@@ -133,27 +163,33 @@ export default function HomePage() {
 
         {/* Testimonials Section */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">What Our Users Say</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+            What Our Users Say
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
-                quote: "I've traded 10 items in the last month without spending a dime!",
+                quote:
+                  "I've traded 10 items in the last month without spending a dime!",
                 author: "Sarah K.",
-                location: "New York"
+                location: "New York",
               },
               {
-                quote: "Great way to declutter and get things you actually need.",
+                quote:
+                  "Great way to declutter and get things you actually need.",
                 author: "Michael T.",
-                location: "Chicago"
+                location: "Chicago",
               },
               {
                 quote: "The community is amazing and trades are always fair.",
                 author: "David P.",
-                location: "Seattle"
-              }
+                location: "Seattle",
+              },
             ].map((testimonial, index) => (
               <div key={index} className="bg-white p-6 rounded-lg shadow-sm">
-                <p className="text-gray-600 italic mb-4">"{testimonial.quote}"</p>
+                <p className="text-gray-600 italic mb-4">
+                  "{testimonial.quote}"
+                </p>
                 <p className="font-medium">{testimonial.author}</p>
                 <p className="text-gray-500 text-sm">{testimonial.location}</p>
               </div>
@@ -174,24 +210,71 @@ export default function HomePage() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link href="/browse" className="text-gray-300 hover:text-white">Browse Listings</Link></li>
-              <li><Link href="/create-listing" className="text-gray-300 hover:text-white">Post a Listing</Link></li>
-              <li><Link href="/how-it-works" className="text-gray-300 hover:text-white">How It Works</Link></li>
+              <li>
+                <Link href="/browse" className="text-gray-300 hover:text-white">
+                  Browse Listings
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/create-listing"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Post a Listing
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/how-it-works"
+                  className="text-gray-300 hover:text-white"
+                >
+                  How It Works
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
-              <li><Link href="/faq" className="text-gray-300 hover:text-white">FAQ</Link></li>
-              <li><Link href="/safety-tips" className="text-gray-300 hover:text-white">Safety Tips</Link></li>
-              <li><Link href="/contact" className="text-gray-300 hover:text-white">Contact Us</Link></li>
+              <li>
+                <Link href="/faq" className="text-gray-300 hover:text-white">
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/safety-tips"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Safety Tips
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Contact Us
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
-              <li><Link href="/terms" className="text-gray-300 hover:text-white">Terms of Service</Link></li>
-              <li><Link href="/privacy" className="text-gray-300 hover:text-white">Privacy Policy</Link></li>
+              <li>
+                <Link href="/terms" className="text-gray-300 hover:text-white">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/privacy"
+                  className="text-gray-300 hover:text-white"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
