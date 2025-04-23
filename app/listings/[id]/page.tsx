@@ -13,18 +13,19 @@ import {
 } from "react-icons/fa";
 import ImageCarousel from "../../components/ImageCarousel";
 
-interface Props {
-  params: { id: string };
+interface PageProps {
+  params: {
+    id: string;
+  };
+  searchParams?: {
+    [key: string]: string | string[] | undefined;
+  };
 }
 
-export default async function ItemPage({ params }: Props) {
-  const { id: listingId } = await params;
-  console.log("listing ID:", listingId);
+export default async function ListingPage({ params }: PageProps) {
   const listing = await prisma.listing.findUnique({
-    where: { id: listingId },
-    include: {
-      owner: true,
-    },
+    where: { id: params.id },
+    include: { owner: true }
   });
 
   if (!listing) return notFound();
