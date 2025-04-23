@@ -1,202 +1,167 @@
-// app/listings/[id]/page.tsx
 import React from "react";
 import prisma from "../../lib/prisma";
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import {
-  FaArrowLeft,
-  FaExchangeAlt,
-  FaMapMarkerAlt,
-  FaTag,
-  FaInfoCircle,
-  FaHeart,
-  FaShare,
-} from "react-icons/fa";
-import ImageCarousel from "../components/ImageCarousel";
+import { Prisma } from "@prisma/client";
+import ListingCard from "./components/ListingCard";
+import SearchFilters from "./components/SearchFilters";
 
-interface Props {
-  params: { id: string };
+interface SearchParams {
+  category?: string;
+  location?: string;
+  sort?: "newest" | "oldest";
+  search?: string;
+  page?: string;
 }
 
-export default async function ItemPage({ params }: Props) {
-  const listing = await prisma.listing.findUnique({
-    where: { id: params.id },
-    include: {
-      owner: true,
+export default async function BrowsePage({
+    searchParams,
+  }: {
+    searchParams: {
+      category?: string;
+      location?: string;
+      sort?: 'newest' | 'oldest';
+      search?: string;
+    }
+  }) {
+    // Show current filters in UI
+    const activeFilters = [
+      searchParams.category && `Category: ${searchParams.category}`,
+      searchParams.location && `Location: ${searchParams.location}`,
+      searchParams.search && `Search: "${searchParams.search}"`
+    ].filter(Boolean);
+  // Build the where clause for Prisma query
+  const where: Prisma.ListingWhereInput = {
+    ...(searchParams.category && {
+      category: searchParams.category,
+    }),
+    ...(searchParams.location && {
+      location: {
+        contains: searchParams.location,
+        mode: "insensitive" as const,
+      },
+    }),
+    ...(searchParams.search && {
+      OR: [
+        {
+          title: {
+            contains: searchParams.search,
+            mode: "insensitive" as const,
+          },
+        },
+        {
+          description: {
+            contains: searchParams.search,
+            mode: "insensitive" as const,
+          },
+        },
+      ],
+    }),
+  };
+
+  // Build the orderBy clause
+  const orderBy: Prisma.ListingOrderByWithRelationInput =
+    searchParams.sort === "oldest"
+      ? { createdAt: "asc" }
+      : { createdAt: "desc" }; // default: newest first
+
+  // Execute the query
+  const listings = await prisma.listing.findMany({
+    where,
+    orderBy,
+    include: { owner: true },
+  });
+
+  // Get unique categories and locations for filters
+  const categories = await prisma.listing.findMany({
+    select: { category: true },
+    distinct: ["category"],
+  });
+
+  const locations = await prisma.listing.findMany({
+    select: { location: true },
+    distinct: ["location"],
+    where: {
+      location: { not: null },
     },
   });
 
-  if (!listing) return notFound();
-
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Navigation Bar */}
-      <nav className="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
-        <Link href="/" className="text-3xl font-bold text-indigo-600 flex items-center gap-2">
-          Barter <span className="text-xs text-gray-900 font-light">Marketplace</span>
-        </Link>
-        <div className="flex items-center space-x-4">
-          <Link href="/create-listing" className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-            Post Listing
-          </Link>
-        </div>
-      </nav>
+      {/* Navigation (same as your other pages) */}
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto py-6 px-4 sm:px-6">
-        <div className="mb-6 flex justify-between items-center">
-          <Link href="/browse" className="flex items-center text-indigo-600 hover:underline">
-            <FaArrowLeft className="mr-2" /> Back to listings
-          </Link>
-          <div className="flex space-x-4">
-            <button className="text-gray-500 hover:text-indigo-600">
-              <FaHeart className="text-xl" />
-            </button>
-            <button className="text-gray-500 hover:text-indigo-600">
-              <FaShare className="text-xl" />
-            </button>
-          </div>
+      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {/* Hero Section */}
+        <div className="bg-indigo-600 rounded-xl p-8 mb-8 text-white">
+          <h1 className="text-3xl font-bold mb-4">Browse Listings</h1>
+          <p className="text-indigo-100 max-w-2xl">
+            Find items you want and offer what you have. Trade without money.
+          </p>
         </div>
 
-        {/* Image Carousel */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-          {listing.images && listing.images.length > 0 ? (
-            <ImageCarousel images={listing.images} title={listing.title} />
-          ) : (
-            <div className="bg-gray-200 h-96 w-full flex items-center justify-center">
-              <span className="text-gray-500">No images available</span>
-            </div>
-          )}
+      {/* Active Filters Bar */}
+      {activeFilters.length > 0 && (
+        <div className="mb-6 bg-indigo-50 p-4 rounded-lg flex flex-wrap gap-2">
+          {activeFilters.map((filter, index) => (
+            <span 
+              key={index} 
+              className="bg-white px-3 py-1 rounded-full text-sm font-medium shadow-sm"
+            >
+              {filter}
+            </span>
+          ))}
         </div>
+      )}
 
-        {/* Listing Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">{listing.title}</h1>
-              <p className="text-indigo-600 font-medium">Posted 2 days ago</p>
-            </div>
-            <div className="flex space-x-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-sm font-medium">
-                {listing.category}
-              </span>
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-medium">
-                {listing.condition}
-              </span>
-            </div>
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Filters Sidebar */}
+          <div className="md:w-1/4">
+            <SearchFilters
+              categories={categories.map((c) => c.category)}
+              locations={locations.map((l) => l.location!)}
+              searchParams={searchParams}
+            />
           </div>
 
-          <div className="mt-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">Description</h2>
-            <p className="text-gray-700 whitespace-pre-line">{listing.description}</p>
-          </div>
-        </div>
-
-        {/* Details Card */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Details</h2>
-          <div className="space-y-4">
-            <div className="flex">
-              <div className="w-1/3 text-gray-500">Trade Preference</div>
-              <div className="w-2/3 font-medium">{listing.tradePreference || "Flexible"}</div>
-            </div>
-            <div className="flex">
-              <div className="w-1/3 text-gray-500">Location</div>
-              <div className="w-2/3 font-medium">{listing.location || "Not specified"}</div>
-            </div>
-            <div className="flex">
-              <div className="w-1/3 text-gray-500">Listed by</div>
-              <div className="w-2/3 font-medium">
-                {listing.owner.name || "Anonymous"}
-                <span className="ml-2 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                  Member since 2023
+          {/* Listings Grid */}
+          <div className="md:w-3/4">
+            {/* Sorting Controls */}
+            <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-sm">
+              <div>
+                <span className="text-gray-600">
+                  {listings.length} items found
                 </span>
               </div>
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-600">Sort by:</span>
+                <select
+                  defaultValue={searchParams.sort || "newest"}
+                  className="border border-gray-300 rounded-md px-3 py-1 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Make Offer Card */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-            <FaExchangeAlt className="mr-2 text-indigo-600" /> Make an Offer
-          </h2>
-          
-          <form className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                What would you like to trade?
-              </label>
-              <textarea
-                rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Describe the item you're offering..."
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Message (optional)
-              </label>
-              <textarea
-                rows={2}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Add any additional details..."
-              />
-            </div>
-            
-            <button
-              type="submit"
-              className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition duration-150 shadow-sm"
-            >
-              Send Trade Offer
-            </button>
-          </form>
-        </div>
-
-        {/* Similar Listings */}
-        <div className="mb-12">
-          <h2 className="text-xl font-bold text-gray-800 mb-6">Similar Listings</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {/* Example similar listing - replace with actual data */}
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
-              <div className="h-48 bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-500">Item image</span>
+            {/* Listings Grid */}
+            {listings.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {listings.map((listing) => (
+                  <ListingCard key={listing.id} listing={listing} />
+                ))}
               </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-gray-800 mb-1">Vintage Camera</h3>
-                <p className="text-gray-500 text-sm mb-2">Photography</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Looking for: Lenses</span>
-                  <button className="text-indigo-600 text-sm font-medium">View</button>
-                </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                <h3 className="text-xl font-medium text-gray-800 mb-2">
+                  No listings found
+                </h3>
+                <p className="text-gray-600">
+                  Try adjusting your search or filters
+                </p>
               </div>
-            </div>
-            
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
-              <div className="h-48 bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-500">Item image</span>
-              </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-gray-800 mb-1">Designer Handbag</h3>
-                <p className="text-gray-500 text-sm mb-2">Fashion</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Looking for: Jewelry</span>
-                  <button className="text-indigo-600 text-sm font-medium">View</button>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-8 px-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <p>© {new Date().getFullYear()} Barter Marketplace. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -18,8 +18,10 @@ interface Props {
 }
 
 export default async function ItemPage({ params }: Props) {
+  const { id: listingId } = await params;
+  console.log("listing ID:", listingId);
   const listing = await prisma.listing.findUnique({
-    where: { id: params.id },
+    where: { id: listingId },
     include: {
       owner: true,
     },
@@ -213,20 +215,20 @@ export default async function ItemPage({ params }: Props) {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-8 px-6 mt-12">
+      {/* <footer className="bg-gray-800 text-white py-8 px-6 mt-12">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-lg font-semibold mb-4">TradeHub</h3>
             <p className="text-gray-300">
               The modern way to barter goods and services without money.
             </p>
-          </div>
+          </div> */}
           {/* Add other footer sections as needed */}
-        </div>
+        {/* </div>
         <div className="max-w-7xl mx-auto mt-8 pt-6 border-t border-gray-700 text-center text-gray-400">
           <p>© {new Date().getFullYear()} TradeHub. All rights reserved.</p>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }
