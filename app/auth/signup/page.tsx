@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
 
@@ -12,10 +12,7 @@ export default function SignupPage() {
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [authMethod, setAuthMethod] = useState<'credentials' | 'email' | 'google'>('credentials')
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/'
 
   const handleCredentialsSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,11 +20,10 @@ export default function SignupPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/signup', {
+      // Create user account
+      const response = await fetch('/api/auth/signup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
       })
 
@@ -41,55 +37,14 @@ export default function SignupPage() {
         email,
         password,
         redirect: false,
-        callbackUrl,
       })
 
       if (result?.error) {
         throw new Error(result.error)
       }
 
-      if (result?.ok) {
-        router.push(callbackUrl)
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Signup failed')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleEmailLinkSignup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError('')
-
-    try {
-      // First create the user (without password)
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, name }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Signup failed')
-      }
-
-      // Then send magic link
-      const result = await signIn('email', {
-        email,
-        redirect: false,
-        callbackUrl,
-      })
-
-      if (result?.error) {
-        throw new Error(result.error)
-      }
-
-      router.push('/auth/verify-request?email=' + encodeURIComponent(email))
+      // Redirect to home page after successful sign in
+      router.push('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed')
     } finally {
@@ -101,14 +56,12 @@ export default function SignupPage() {
     setIsLoading(true)
     setError('')
     try {
-      await signIn('google', { callbackUrl })
+      await signIn('google')
     } catch (err) {
       setError('Failed to sign up with Google')
       setIsLoading(false)
     }
   }
-
-  
 
   return (
     <div className="max-w-md mx-auto p-6">
@@ -120,117 +73,60 @@ export default function SignupPage() {
         </div>
       )}
 
-      <div className="flex gap-2 mb-4">
+      <form onSubmit={handleCredentialsSignup} className="space-y-4">
+        <div>
+          <label htmlFor="name" className="block mb-1">
+            Full Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="email" className="block mb-1">
+            Email Address
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="password" className="block mb-1">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+            minLength={6}
+          />
+        </div>
+
         <button
-          onClick={() => setAuthMethod('credentials')}
-          className={`flex-1 py-2 px-4 rounded ${authMethod === 'credentials' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          type="submit"
+          disabled={isLoading}
+          className={`w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 ${
+            isLoading ? 'opacity-70 cursor-not-allowed' : ''
+          }`}
         >
-          Email/Password
+          {isLoading ? 'Creating account...' : 'Sign Up'}
         </button>
-        <button
-          onClick={() => setAuthMethod('email')}
-          className={`flex-1 py-2 px-4 rounded ${authMethod === 'email' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-        >
-          Email Link
-        </button>
-      </div>
-
-      {authMethod === 'credentials' ? (
-        <form onSubmit={handleCredentialsSignup} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block mb-1">
-              Full Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="email" className="block mb-1">
-              Email Address
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-              minLength={6}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 ${
-              isLoading ? 'opacity-70 cursor-not-allowed' : ''
-            }`}
-          >
-            {isLoading ? 'Creating account...' : 'Sign Up'}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={handleEmailLinkSignup} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block mb-1">
-              Full Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="email" className="block mb-1">
-              Email Address
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 ${
-              isLoading ? 'opacity-70 cursor-not-allowed' : ''
-            }`}
-          >
-            {isLoading ? 'Sending signup link...' : 'Sign Up with Email Link'}
-          </button>
-        </form>
-      )}
+      </form>
 
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
