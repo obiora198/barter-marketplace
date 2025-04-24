@@ -3,12 +3,14 @@ import {getServerSession} from 'next-auth/next'
 import { authOptions } from '../../lib/auth';
 import ProfilePageClient from './ProfilePageClient';
 import prisma from '../../lib/prisma';
+import { redirect } from 'next/navigation';
+
 
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
   
   if (!session?.user?.email) {
-    return <div>Not authenticated</div>;
+    redirect('/signin');
   }
 
   const user = await prisma.user.findUnique({
