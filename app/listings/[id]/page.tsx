@@ -1,7 +1,5 @@
-// app/listings/[id]/page.tsx
 import React from "react";
 import prisma from "../../../lib/prisma";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,19 +10,18 @@ import {
   FaInfoCircle,
 } from "react-icons/fa";
 import ImageCarousel from "../../components/ImageCarousel";
+import type { Metadata } from 'next';
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-  searchParams?: {
-    [key: string]: string | string[] | undefined;
-  };
+interface Props {
+  params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default async function ListingPage({ params }: PageProps) {
+export default async function ListingPage({params}: {params: Promise<{ id: string }>}) {
+  const listingId = (await params).id;
+
   const listing = await prisma.listing.findUnique({
-    where: { id: params.id },
+    where: { id: listingId },
     include: { owner: true }
   });
 
@@ -32,25 +29,6 @@ export default async function ListingPage({ params }: PageProps) {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Navigation Bar */}
-      <nav className="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
-        <Link
-          href="/"
-          className="text-3xl font-bold text-indigo-600 flex items-center gap-2"
-        >
-          Barter{" "}
-          <span className="text-xs text-gray-900 font-light">Marketplace</span>
-        </Link>
-        <div className="flex items-center space-x-4">
-          <Link
-            href="/create-listing"
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-          >
-            Post Listing
-          </Link>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <main className="max-w-3xl mx-auto py-8 px-4 sm:px-6">
         <Link
@@ -214,22 +192,6 @@ export default async function ListingPage({ params }: PageProps) {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      {/* <footer className="bg-gray-800 text-white py-8 px-6 mt-12">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <h3 className="text-lg font-semibold mb-4">TradeHub</h3>
-            <p className="text-gray-300">
-              The modern way to barter goods and services without money.
-            </p>
-          </div> */}
-          {/* Add other footer sections as needed */}
-        {/* </div>
-        <div className="max-w-7xl mx-auto mt-8 pt-6 border-t border-gray-700 text-center text-gray-400">
-          <p>© {new Date().getFullYear()} TradeHub. All rights reserved.</p>
-        </div>
-      </footer> */}
     </div>
   );
 }

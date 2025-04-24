@@ -1,10 +1,7 @@
 "use client";
 
-import { signIn, useSession } from "next-auth/react";
-import Head from "next/head";
+import {  useSession } from "next-auth/react";
 import Link from "next/link";
-import AuthButton from "./components/AuthButton";
-import SearchBar from "./components/SearchBar";
 import CategoryCard from "./components/CategoryCard";
 import ListingCard from "./components/ListingCard";
 import { popularCategories, recentListings } from "./assets/data"; // Assuming you have a data file for sample data}

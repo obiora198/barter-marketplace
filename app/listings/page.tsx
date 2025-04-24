@@ -1,55 +1,53 @@
 import React from "react";
 import prisma from "../../lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../prisma/app/generated/prisma/client";
 import ListingCard from "./components/ListingCard";
 import SearchFilters from "./components/SearchFilters";
+import { Listing } from "@/types/types";
+import type { Metadata } from 'next';
 
 interface SearchParams {
   category?: string;
   location?: string;
-  sort?: "newest" | "oldest";
+  sort?: 'newest' | 'oldest';
   search?: string;
-  page?: string;
 }
 
-export default async function BrowsePage({
-    searchParams,
-  }: {
-    searchParams: {
-      category?: string;
-      location?: string;
-      sort?: 'newest' | 'oldest';
-      search?: string;
-    }
-  }) {
-    // Show current filters in UI
-    const activeFilters = [
-      searchParams.category && `Category: ${searchParams.category}`,
-      searchParams.location && `Location: ${searchParams.location}`,
-      searchParams.search && `Search: "${searchParams.search}"`
-    ].filter(Boolean);
+export default async function ListingsPage({
+  searchParams
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  // Resolve the promise if needed
+  const resolvedParams = await Promise.resolve(searchParams);
+  // Show current filters in UI
+  const activeFilters = [
+    resolvedParams.category && `Category: ${resolvedParams.category}`,
+    resolvedParams.location && `Location: ${resolvedParams.location}`,
+    resolvedParams.search && `Search: "${resolvedParams.search}"`,
+  ].filter(Boolean);
   // Build the where clause for Prisma query
   const where: Prisma.ListingWhereInput = {
-    ...(searchParams.category && {
-      category: searchParams.category,
+    ...(resolvedParams.category && {
+      category: resolvedParams.category,
     }),
-    ...(searchParams.location && {
+    ...(resolvedParams.location && {
       location: {
-        contains: searchParams.location,
+        contains: resolvedParams.location,
         mode: "insensitive" as const,
       },
     }),
-    ...(searchParams.search && {
+    ...(resolvedParams.search && {
       OR: [
         {
           title: {
-            contains: searchParams.search,
+            contains: resolvedParams.search,
             mode: "insensitive" as const,
           },
         },
         {
           description: {
-            contains: searchParams.search,
+            contains: resolvedParams.search,
             mode: "insensitive" as const,
           },
         },
@@ -59,12 +57,12 @@ export default async function BrowsePage({
 
   // Build the orderBy clause
   const orderBy: Prisma.ListingOrderByWithRelationInput =
-    searchParams.sort === "oldest"
+    resolvedParams.sort === "oldest"
       ? { createdAt: "asc" }
       : { createdAt: "desc" }; // default: newest first
 
   // Execute the query
-  const listings = await prisma.listing.findMany({
+  const listings: Listing[] = await prisma.listing.findMany({
     where,
     orderBy,
     include: { owner: true },
@@ -97,27 +95,31 @@ export default async function BrowsePage({
           </p>
         </div>
 
-      {/* Active Filters Bar */}
-      {activeFilters.length > 0 && (
-        <div className="mb-6 bg-indigo-50 p-4 rounded-lg flex flex-wrap gap-2">
-          {activeFilters.map((filter, index) => (
-            <span 
-              key={index} 
-              className="bg-white px-3 py-1 rounded-full text-sm font-medium shadow-sm"
-            >
-              {filter}
-            </span>
-          ))}
-        </div>
-      )}
+        {/* Active Filters Bar */}
+        {activeFilters.length > 0 && (
+          <div className="mb-6 bg-indigo-50 p-4 rounded-lg flex flex-wrap gap-2">
+            {activeFilters.map((filter, index) => (
+              <span
+                key={index}
+                className="bg-white px-3 py-1 rounded-full text-sm font-medium shadow-sm"
+              >
+                {filter}
+              </span>
+            ))}
+          </div>
+        )}
 
         <div className="flex flex-col md:flex-row gap-8">
           {/* Filters Sidebar */}
           <div className="md:w-1/4">
             <SearchFilters
-              categories={categories.map((c) => c.category)}
-              locations={locations.map((l) => l.location!)}
-              searchParams={searchParams}
+              categories={categories.map(
+                (c: { category: string }) => c.category
+              )}
+              locations={locations.map(
+                (l: { location: string | null }) => l.location!
+              )}
+              searchParams={resolvedParams}
             />
           </div>
 
@@ -133,7 +135,7 @@ export default async function BrowsePage({
               <div className="flex items-center space-x-4">
                 <span className="text-gray-600">Sort by:</span>
                 <select
-                  defaultValue={searchParams.sort || "newest"}
+                  defaultValue={resolvedParams.sort || "newest"}
                   className="border border-gray-300 rounded-md px-3 py-1 focus:ring-indigo-500 focus:border-indigo-500"
                 >
                   <option value="newest">Newest First</option>

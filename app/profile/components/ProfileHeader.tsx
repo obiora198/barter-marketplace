@@ -18,7 +18,7 @@ interface ProfileHeaderProps {
       <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
         <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-100">
           <Image
-            src={user.image || '/user-placeholder.jpg'}
+            src={user.image || '/user.png'}
             alt={user.name || 'User'}
             fill
             className="object-cover"
