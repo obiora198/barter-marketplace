@@ -183,14 +183,6 @@ const config = {
       {
         "fromEnvVar": null,
         "value": "rhel-openssl-3.0.x"
-      },
-      {
-        "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x"
-      },
-      {
-        "fromEnvVar": null,
-        "value": "linux-musl"
       }
     ],
     "previewFeatures": [],
@@ -217,8 +209,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"app/generated/prisma/client\"\n  binaryTargets = [\"native\", \"rhel-openssl-3.0.x\", \"debian-openssl-3.0.x\", \"linux-musl\"]\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"MONGODB_URL\")\n}\n\nmodel Account {\n  id                String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  userId            String  @db.ObjectId\n  type              String\n  provider          String\n  providerAccountId String\n  refresh_token     String?\n  access_token      String?\n  expires_at        Int?\n  token_type        String?\n  scope             String?\n  id_token          String?\n  session_state     String?\n\n  user User @relation(fields: [userId], references: [id])\n\n  @@unique([provider, providerAccountId])\n}\n\nmodel Session {\n  id           String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  sessionToken String   @unique\n  userId       String   @db.ObjectId\n  expires      DateTime\n\n  user User @relation(fields: [userId], references: [id])\n}\n\nmodel User {\n  id            String    @id @default(auto()) @map(\"_id\") @db.ObjectId\n  name          String?\n  email         String?   @unique\n  emailVerified DateTime?\n  image         String?\n  password      String?\n  bio           String?\n  location      String?\n  rating        Float?    @default(0.0)\n  tradeCount    Int       @default(0)\n\n  accounts Account[]\n  sessions Session[]\n  listings Listing[]\n}\n\nmodel VerificationToken {\n  id         String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  identifier String\n  token      String\n  expires    DateTime\n\n  @@unique([identifier, token])\n  @@map(\"VerificationToken\")\n}\n\nmodel Listing {\n  id              String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  title           String\n  description     String\n  images          String[]\n  category        String\n  condition       String   @default(\"good\")\n  tradePreference String?\n  location        String?\n  createdAt       DateTime @default(now())\n  updatedAt       DateTime @updatedAt\n  ownerId         String   @db.ObjectId\n  offers          String[] @default([])\n\n  owner User @relation(fields: [ownerId], references: [id])\n}\n",
-  "inlineSchemaHash": "091074ae86688971a921f7e6d2fafb4146d3bd02d683fe0f7610dbb26f7d6a12",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"app/generated/prisma/client\"\n  binaryTargets = [\"native\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"MONGODB_URL\")\n}\n\nmodel Account {\n  id                String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  userId            String  @db.ObjectId\n  type              String\n  provider          String\n  providerAccountId String\n  refresh_token     String?\n  access_token      String?\n  expires_at        Int?\n  token_type        String?\n  scope             String?\n  id_token          String?\n  session_state     String?\n\n  user User @relation(fields: [userId], references: [id])\n\n  @@unique([provider, providerAccountId])\n}\n\nmodel Session {\n  id           String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  sessionToken String   @unique\n  userId       String   @db.ObjectId\n  expires      DateTime\n\n  user User @relation(fields: [userId], references: [id])\n}\n\nmodel User {\n  id            String    @id @default(auto()) @map(\"_id\") @db.ObjectId\n  name          String?\n  email         String?   @unique\n  emailVerified DateTime?\n  image         String?\n  password      String?\n  bio           String?\n  location      String?\n  rating        Float?    @default(0.0)\n  tradeCount    Int       @default(0)\n\n  accounts Account[]\n  sessions Session[]\n  listings Listing[]\n}\n\nmodel VerificationToken {\n  id         String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  identifier String\n  token      String\n  expires    DateTime\n\n  @@unique([identifier, token])\n  @@map(\"VerificationToken\")\n}\n\nmodel Listing {\n  id              String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  title           String\n  description     String\n  images          String[]\n  category        String\n  condition       String   @default(\"good\")\n  tradePreference String?\n  location        String?\n  createdAt       DateTime @default(now())\n  updatedAt       DateTime @updatedAt\n  ownerId         String   @db.ObjectId\n  offers          String[] @default([])\n\n  owner User @relation(fields: [ownerId], references: [id])\n}\n",
+  "inlineSchemaHash": "6141b29e286f1e176fd1fa4aa30daada2b3842f2c04d86c84846102eb9ec39d4",
   "copyEngine": true
 }
 config.dirname = '/'
