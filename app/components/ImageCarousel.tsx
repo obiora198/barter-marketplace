@@ -26,7 +26,7 @@ export default function ImageCarousel({ images, title }: { images: string[], tit
         src={images[currentIndex]}
         alt={`${title} - Image ${currentIndex + 1}`}
         fill
-        className="object-cover"
+        className="object-contain"
         priority
       />
 

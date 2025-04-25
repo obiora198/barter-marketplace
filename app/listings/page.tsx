@@ -25,6 +25,7 @@ export default async function ListingsPage({
     resolvedParams.category && `Category: ${resolvedParams.category}`,
     resolvedParams.location && `Location: ${resolvedParams.location}`,
     resolvedParams.search && `Search: "${resolvedParams.search}"`,
+    resolvedParams.sort && `Sort: "${resolvedParams.sort}"`,
   ].filter(Boolean);
   // Build the where clause for Prisma query
   const where: Prisma.ListingWhereInput = {
