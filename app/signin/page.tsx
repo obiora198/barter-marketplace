@@ -9,7 +9,6 @@ function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [authMethod, setAuthMethod] = useState<"credentials" | "email" | "google">("credentials");
   const [error, setError] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,30 +35,6 @@ function SignInForm() {
       if (result?.ok) {
         router.push(callbackUrl);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign in failed");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleEmailLinkSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-    
-    try {
-      const res = await signIn("email", {
-        email,
-        redirect: false,
-        callbackUrl,
-      });
-
-      if (res?.error) {
-        throw new Error(res.error);
-      }
-
-      router.push("/auth/verify-request?email=" + encodeURIComponent(email));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed");
     } finally {
@@ -94,94 +69,51 @@ function SignInForm() {
         </div>
       )}
 
-      <div className="flex gap-2 mb-4">
+      <form onSubmit={handleCredentialsSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="email" className="block mb-1">
+            Email Address
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="password" className="block mb-1">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+
+        <div className="text-sm text-right">
+          <Link href="/auth/forgot-password" className="text-blue-600 hover:underline">
+            Forgot password?
+          </Link>
+        </div>
+
         <button
-          onClick={() => setAuthMethod("credentials")}
-          className={`flex-1 py-2 px-4 rounded ${authMethod === "credentials" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+          type="submit"
+          disabled={isLoading}
+          className={`w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 ${
+            isLoading ? "opacity-70 cursor-not-allowed" : ""
+          }`}
         >
-          Email/Password
+          {isLoading ? "Signing in..." : "Sign In"}
         </button>
-        <button
-          onClick={() => setAuthMethod("email")}
-          className={`flex-1 py-2 px-4 rounded ${authMethod === "email" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
-        >
-          Email Link
-        </button>
-      </div>
-
-      {authMethod === "credentials" ? (
-        <form onSubmit={handleCredentialsSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block mb-1">
-              Email Address
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-
-          <div className="text-sm text-right">
-            <Link href="/auth/forgot-password" className="text-blue-600 hover:underline">
-              Forgot password?
-            </Link>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 ${
-              isLoading ? "opacity-70 cursor-not-allowed" : ""
-            }`}
-          >
-            {isLoading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={handleEmailLinkSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block mb-1">
-              Email Address
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 ${
-              isLoading ? "opacity-70 cursor-not-allowed" : ""
-            }`}
-          >
-            {isLoading ? "Sending sign-in link..." : "Send Sign-In Link"}
-          </button>
-        </form>
-      )}
+      </form>
 
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
