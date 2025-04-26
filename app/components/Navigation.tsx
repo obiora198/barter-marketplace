@@ -85,7 +85,7 @@ const Navigation = () => {
                   Sign In
                 </Link>
               ) : (
-                <div className="px-2" onClick={() => setIsMenuOpen(false)}>
+                <div className="px-2">
                   <AuthButton />
                 </div>
               )}

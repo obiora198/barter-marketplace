@@ -53,7 +53,9 @@ export default function AuthButton() {
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100">
+          <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100 
+                         md:origin-top-right 
+                         transform transition-transform duration-100 ease-in-out">
             <div className="px-4 py-3 border-b border-gray-100">
               <p className="text-sm font-medium text-gray-900">
                 {session.user?.name || "User"}
