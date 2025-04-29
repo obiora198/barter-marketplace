@@ -8,6 +8,7 @@ export default async function ListingsSection() {
     const listings: Listing[] = await prisma.listing.findMany({
         include: { owner: true },
         orderBy: { createdAt: 'desc' },
+        take: 4, 
     })
 
   return (

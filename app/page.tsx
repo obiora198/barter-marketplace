@@ -1,9 +1,6 @@
-// 
-
 import Link from "next/link";
 import CategoryCard from "./components/CategoryCard";
-import { popularCategories } from "./assets/data"; // Assuming you have a data file for sample data}
-// import LoadingScreen from "./components/LoadingScreen";
+import { popularCategories } from "./assets/data";
 import ListingsSection from "./components/homepage-sections/listingsSection";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
