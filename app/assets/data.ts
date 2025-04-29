@@ -12,32 +12,32 @@ export const recentListings = [
       id: 1, 
       title: "Vintage Camera", 
       description: "Like new condition, comes with case", 
-      image: "/camera.jpg",
-      owner: "JaneDoe",
+      image: ["/camera.jpg"],
+      owner: {name:"JaneDoe"},
       category: "Electronics"
     },
     { 
       id: 2, 
       title: "Gardening Tools Set", 
       description: "Complete set of gardening tools", 
-      image: "/gardening.jpg",
-      owner: "JohnSmith",
+      image: ["/gardening.jpg"],
+      owner: {name:"JohnSmith"},
       category: "Home & Garden"
     },
     { 
       id: 3, 
       title: "Designer Handbag", 
       description: "Gently used luxury handbag", 
-      image: "/handbag.jpg",
-      owner: "AlexJohnson",
+      image: ["/handbag.jpg"],
+      owner: {name:"AlexJohnson"},
       category: "Clothing"
     },
     { 
       id: 4, 
       title: "Science Fiction Book Collection", 
       description: "10 classic sci-fi books", 
-      image: "/books.jpg",
-      owner: "SamWilson",
+      image: ["/books.jpg"],
+      owner: {name:"SamWilson"},
       category: "Books"
     },
   ];

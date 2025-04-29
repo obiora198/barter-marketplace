@@ -1,7 +1,7 @@
 import React from "react";
 import prisma from "../../lib/prisma";
 import { Prisma } from "../../prisma/app/generated/prisma/client";
-import ListingCard from "./components/ListingCard";
+import ListingCard from "../components/ListingCard";
 import SearchFilters from "./components/SearchFilters";
 import { Listing } from "@/types/types";
 import type { Metadata } from 'next';
@@ -149,7 +149,7 @@ export default async function ListingsPage({
             {listings.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {listings.map((listing) => (
-                  <ListingCard key={listing.id} listing={listing} />
+                  <ListingCard key={listing.id} listing={listing} variant="full" />
                 ))}
               </div>
             ) : (

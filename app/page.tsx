@@ -1,16 +1,15 @@
-"use client";
+// 
 
-import {  useSession } from "next-auth/react";
 import Link from "next/link";
 import CategoryCard from "./components/CategoryCard";
-import ListingCard from "./components/ListingCard";
-import { popularCategories, recentListings } from "./assets/data"; // Assuming you have a data file for sample data}
-import LoadingScreen from "./components/LoadingScreen";
+import { popularCategories } from "./assets/data"; // Assuming you have a data file for sample data}
+// import LoadingScreen from "./components/LoadingScreen";
+import ListingsSection from "./components/homepage-sections/listingsSection";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export default function HomePage() {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") return <LoadingScreen />;
+  const session = getServerSession(authOptions);
 
   return (
     <>
@@ -54,28 +53,7 @@ export default function HomePage() {
         </section>
 
         {/* Recent Listings Section */}
-        <section className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
-              Recent Listings
-            </h2>
-            <Link href="/listings" className="text-indigo-600 hover:underline">
-              View All
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {recentListings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                title={listing.title}
-                description={listing.description}
-                image={listing.image}
-                owner={listing.owner}
-                category={listing.category}
-              />
-            ))}
-          </div>
-        </section>
+        <ListingsSection />
 
         {/* How It Works Section */}
         <section className="bg-white rounded-lg shadow-sm p-8 mb-12">
