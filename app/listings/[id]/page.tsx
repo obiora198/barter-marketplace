@@ -10,12 +10,6 @@ import {
   FaInfoCircle,
 } from "react-icons/fa";
 import ImageCarousel from "../../components/ImageCarousel";
-import type { Metadata } from 'next';
-
-interface Props {
-  params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
 
 export default async function ListingPage({params}: {params: Promise<{ id: string }>}) {
   const listingId = (await params).id;

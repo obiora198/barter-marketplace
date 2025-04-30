@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../../lib/auth";
+import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
@@ -23,6 +23,9 @@ export async function POST(request: Request) {
       );
     }
 
+    // Sanitize images
+    const validImages = images.filter((img: string) => img.trim() !== "");
+
     // Create listing
     const listing = await prisma.listing.create({
       data: {
@@ -32,7 +35,7 @@ export async function POST(request: Request) {
         condition: condition || "good",
         tradePreference,
         location,
-        images: images || [],
+        images: validImages,
         ownerId: session.user.id,
         offers: [], // default empty array
       },

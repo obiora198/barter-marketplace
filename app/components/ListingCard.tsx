@@ -16,6 +16,8 @@ interface ListingCardProps {
     tradePreference?: string | null;
   };
   variant?: 'full' | 'compact';
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export default function ListingCard({ listing, variant = 'full' }: ListingCardProps) {

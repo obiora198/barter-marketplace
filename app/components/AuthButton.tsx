@@ -7,8 +7,6 @@ import {
   FiSettings,
   FiLogOut,
   FiMessageSquare,
-  FiHeart,
-  FiShoppingBag
 } from "react-icons/fi";
 
 export default function AuthButton() {
