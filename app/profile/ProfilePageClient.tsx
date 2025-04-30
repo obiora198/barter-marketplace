@@ -6,9 +6,11 @@ import ProfileHeader from './components/ProfileHeader';
 import ListingsGrid from './components/ListingsGrid';
 import { User } from '../../types/types';
 import { useRouter } from 'next/navigation';
+import {toast} from 'react-hot-toast'
 
 export default function ProfilePageClient({ user }: { user: User }) {
   const [loading, setLoading] = React.useState(false);
+  
   const router = useRouter();
 
   const handleEdit = (listingId: string) => {
@@ -23,10 +25,10 @@ export default function ProfilePageClient({ user }: { user: User }) {
       method: 'DELETE',
     });
     if (response.ok) {
-      // Optionally re-fetch listings or update local state to reflect changes
-      alert('Listing deleted');
+      toast.success("Listing deleted");
+      router.refresh()
     } else {
-      alert('Failed to delete the listing');
+      toast.error('Failed to delete the listing');
     }
     setLoading(false);
   };

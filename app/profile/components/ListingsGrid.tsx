@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Listing } from '../../../types/types';
-import ListingCard from '../../components/ListingCard';
-import DeleteConfirmationModal from './DeleteConfirmationModal';
-import Link from 'next/link';
+import React, { useState } from "react";
+import { Listing } from "../../../types/types";
+import ListingCard from "../../components/ListingCard";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import Link from "next/link";
 
 interface ListingsGridProps {
   listings: Listing[];
@@ -11,24 +11,28 @@ interface ListingsGridProps {
   onDelete?: (id: string) => void;
 }
 
-export default function ListingsGrid({ 
+export default function ListingsGrid({
   listings,
   loading,
   onEdit,
-  onDelete
+  onDelete,
 }: ListingsGridProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [listingToDelete, setListingToDelete] = useState<Listing | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleDeleteClick = (listing: Listing) => {
     setListingToDelete(listing);
     setIsModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    if (listingToDelete && onDelete) {
-      onDelete(listingToDelete.id);
-    }
+  const handleConfirmDelete = async () => {
+    if (!listingToDelete || !onDelete) return;
+
+    setDeleteLoading(true);
+    await onDelete(listingToDelete.id); // Wait for delete to finish
+    setDeleteLoading(false);
+
     setIsModalOpen(false);
     setListingToDelete(null);
   };
@@ -41,7 +45,7 @@ export default function ListingsGrid({
   if (listings.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-        <Link href={'/create-listing'}>Post your first listing</Link>
+        <Link href={"/create-listing"}>Post your first listing</Link>
       </div>
     );
   }
@@ -50,8 +54,12 @@ export default function ListingsGrid({
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {listings.map((listing) => (
         <div key={listing.id} className="relative group">
-          <ListingCard listing={listing} variant='compact' onEdit={() => onEdit?.(listing.id)} />
-          
+          <ListingCard
+            listing={listing}
+            variant="compact"
+            onEdit={() => onEdit?.(listing.id)}
+          />
+
           {/* Hover buttons */}
           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity space-x-2 z-10">
             {onEdit && (
@@ -79,7 +87,8 @@ export default function ListingsGrid({
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onConfirm={handleConfirmDelete}
-        listingTitle={listingToDelete?.title || ''}
+        listingTitle={listingToDelete?.title || ""}
+        loading={deleteLoading}
       />
     </div>
   );

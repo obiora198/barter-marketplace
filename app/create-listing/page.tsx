@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Head from "next/head";
 import Link from "next/link";
 import ListingForm from "./components/ListingForm";
+import {toast} from 'react-hot-toast'
 
 export default function CreateListing() {
   const { data: session } = useSession();
@@ -71,7 +72,10 @@ export default function CreateListing() {
       }
 
       const result = await response.json();
+      toast.success("Listing created successfully!");
       router.push(`/listings/${result.id}`);
+      // router.push(`/listings/${result.id}`);
+
 
       // Reset the form
       setFormData({

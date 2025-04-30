@@ -4,6 +4,7 @@ import "./globals.css";
 import SessionWrapper from "../app/components/SessionWrapper";
 import Navigation from "./components/Navigation";
 import Footer from "../app/components/Footer";
+import {Toaster} from 'react-hot-toast'
 import Head from "next/head";
 
 const geistSans = Geist({
@@ -54,6 +55,7 @@ export default async function RootLayout({
       >
         <SessionWrapper>
           <Navigation />
+          <Toaster position="top-right" />
           {children}
           <Footer />
         </SessionWrapper>
