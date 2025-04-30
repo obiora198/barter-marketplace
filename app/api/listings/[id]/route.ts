@@ -4,8 +4,8 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../../lib/auth';
 import prisma from '../../../../lib/prisma';
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
-  const id = context.params.id;
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const {id} = await params;
   console.log('fetching listing with id:', id);
 
   try {
@@ -32,8 +32,8 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
   }
 }
 
-export async function PUT(req: NextRequest, context: { params: { id: string } }) {
-  const id = context.params.id;
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const {id} = await params;
 
   try {
     const session = await getServerSession(authOptions) as { user: { id: string } } | null;
@@ -85,8 +85,8 @@ export async function PUT(req: NextRequest, context: { params: { id: string } })
   }
 }
 
-export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
-  const id = context.params.id;
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const {id} = await params;
 
   try {
     const session = await getServerSession(authOptions) as { user: { id: string } } | null;
