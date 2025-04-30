@@ -98,38 +98,13 @@ const Footer = () => {
                 ))}
               </ul>
             </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Newsletter</h3>
-              <p className="text-gray-300 text-sm mb-2">
-                Subscribe for updates and offers
-              </p>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="px-3 py-2 text-sm text-gray-800 rounded-l focus:outline-none w-full"
-                />
-                <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-r text-sm whitespace-nowrap">
-                  Subscribe
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Copyright Section */}
         <div className="mt-10 pt-6 border-t border-gray-700 text-center text-gray-400 text-sm">
-          <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="flex justify-center items-center">
             <p>© {currentYear} TradeHub. All rights reserved.</p>
-            <div className="mt-3 md:mt-0 flex space-x-4">
-              <Link href="/sitemap" className="hover:text-white transition-colors">
-                Sitemap
-              </Link>
-              <Link href="/accessibility" className="hover:text-white transition-colors">
-                Accessibility
-              </Link>
-            </div>
           </div>
         </div>
       </div>
