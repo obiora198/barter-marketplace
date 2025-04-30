@@ -43,7 +43,6 @@ export default function HomePage() {
                 key={category.id}
                 name={category.name}
                 icon={category.icon}
-                count={category.count}
               />
             ))}
           </div>
