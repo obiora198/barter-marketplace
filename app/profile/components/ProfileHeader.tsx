@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FiEdit, FiSettings } from 'react-icons/fi';
+import { FiEdit } from 'react-icons/fi';
 import {User} from "../../../types/types";
 
 interface ProfileHeaderProps {

@@ -19,5 +19,6 @@ export interface Listing {
     email: string | null;
     image?: string | null;
     bio?: string | null;
+    location?: string | null;
     listings: Listing[];
   }

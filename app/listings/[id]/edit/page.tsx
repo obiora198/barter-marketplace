@@ -119,10 +119,6 @@ const EditListing = () => {
 
   return (
     <>
-      <Head>
-        <title>Edit Listing | Barter Marketplace</title>
-      </Head>
-
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6">
           <Link href="/profile" className="text-indigo-600 hover:underline">

@@ -10,11 +10,11 @@ export const listingSchema = z.object({
   images: z.array(z.string().min(1)).min(1, "At least one image is required"),
 })
 
-export const userUpdateSchema = z.object({
-  name: z.string().min(3).optional(),
-  bio: z.string().max(500).optional(),
+export const profileSchema = z.object({
+  name: z.string().min(2, "Name is too short"),
+  bio: z.string().optional(),
   location: z.string().optional(),
-  image: z.string().optional()
+  imageUrl: z.string().optional(),
 });
 
 export const registerSchema = z.object({
