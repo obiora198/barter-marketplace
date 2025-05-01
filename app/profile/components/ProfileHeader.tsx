@@ -13,6 +13,7 @@ interface ProfileHeaderProps {
     user,
     listingsCount 
   }: ProfileHeaderProps) {
+    console.log(user)
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
@@ -35,18 +36,12 @@ interface ProfileHeaderProps {
               {user.bio && <p className="mt-2 text-gray-700">{user.bio}</p>}
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex p-2">
               <Link 
                 href="/profile/edit" 
                 className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full"
               >
                 <FiEdit size={18} />
-              </Link>
-              <Link 
-                href="/settings" 
-                className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full"
-              >
-                <FiSettings size={18} />
               </Link>
             </div>
           </div>

@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { toast } from 'react-hot-toast'
 
 function SignInForm() {
   const [email, setEmail] = useState("");
@@ -33,6 +34,7 @@ function SignInForm() {
       }
 
       if (result?.ok) {
+        toast.success('Login successfull')
         router.push(callbackUrl);
       }
     } catch (err) {

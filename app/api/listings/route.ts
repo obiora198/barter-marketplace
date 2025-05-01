@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { listingSchema } from "@/lib/validation/validatorSchema";
 
 export async function POST(request: Request) {
   try {
@@ -12,32 +13,36 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    const result = listingSchema.safeParse(body);
 
-    const { title, description, category, condition, tradePreference, location, images } = body;
-
-    // Validate required fields
-    if (!title || !description || !category) {
+    if (!result.success) {
       return NextResponse.json(
-        { message: "Title, description, and category are required" },
+        { message: "Invalid data", errors: result.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
 
-    // Sanitize images
-    const validImages = images.filter((img: string) => img.trim() !== "");
+    const {
+      title,
+      description,
+      category,
+      condition,
+      tradePreference,
+      location,
+      images,
+    } = result.data;
 
-    // Create listing
     const listing = await prisma.listing.create({
       data: {
         title,
         description,
         category,
-        condition: condition || "good",
+        condition,
         tradePreference,
         location,
-        images: validImages,
+        images,
         ownerId: session.user.id,
-        offers: [], // default empty array
+        offers: [],
       },
     });
 

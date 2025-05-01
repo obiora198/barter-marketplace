@@ -2,6 +2,13 @@
 import React, { useState, useRef } from "react";
 import ImageGrid from "../../components/ImageGrid";
 import { Listing } from "../../../types/types";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { listingSchema } from "@/lib/validation/validatorSchema";
+import { z } from "zod";
+
+// Infer TypeScript type from Zod schema
+type ListingFormData = z.infer<typeof listingSchema>;
 
 interface ListingFormProps {
   initialData?: Partial<Listing>;
@@ -20,26 +27,37 @@ export default function ListingForm({
 
   const [previews, setPreviews] = useState<string[]>(initialData.images || []);
   const [rawFiles, setRawFiles] = useState<File[]>([]);
-  const [formData, setFormData] = useState({
-    title: initialData.title || "",
-    description: initialData.description || "",
-    category: initialData.category || "",
-    condition: initialData.condition || "good",
-    images: initialData.images || [],
-    tradePreference: initialData.tradePreference || "",
-    location: initialData.location || "",
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    trigger,
+    formState: { errors },
+  } = useForm<ListingFormData>({
+    resolver: zodResolver(listingSchema),
+    defaultValues: {
+      title: initialData.title || "",
+      description: initialData.description || "",
+      category: initialData.category || "",
+      condition: (initialData.condition as ListingFormData["condition"]) || "good",
+      tradePreference: initialData.tradePreference || "",
+      location: initialData.location || "",
+      images: initialData.images || [],
+    },
   });
 
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const files = Array.from(e.target.files || []);
+  //   const newPreviews = files.map((file) => {
+  //     const url = URL.createObjectURL(file);
+  //     setTimeout(() => URL.revokeObjectURL(url), 10000);
+  //     return url;
+  //   });
+  //   setPreviews((prev) => [...prev, ...newPreviews]);
+  //   setRawFiles((prev) => [...prev, ...files]);
+  // };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -48,8 +66,15 @@ export default function ListingForm({
       setTimeout(() => URL.revokeObjectURL(url), 10000);
       return url;
     });
-    setPreviews((prev) => [...prev, ...newPreviews]);
-    setRawFiles((prev) => [...prev, ...files]);
+
+    const newImages = [...previews, ...newPreviews];
+    const newRawFiles = [...rawFiles, ...files];
+
+    setPreviews(newImages);
+    setRawFiles(newRawFiles);
+
+    setValue("images", newImages); // This updates the form value
+    trigger("images"); // Trigger validation manually
   };
 
   const clearAllImages = () => {
@@ -58,11 +83,11 @@ export default function ListingForm({
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setUploadError(null); // Reset upload error state before submitting
-    await onSubmit(formData, rawFiles);
+  const onValidSubmit = async (data: z.infer<typeof listingSchema>) => {
+    setUploadError(null);
+    await onSubmit(data, rawFiles);
   };
+  
 
   const categories = [
     "Electronics",
@@ -79,7 +104,7 @@ export default function ListingForm({
 
   return (
     <form
-      onSubmit={handleFormSubmit}
+      onSubmit={handleSubmit(onValidSubmit)}
       className="bg-white shadow-sm rounded-lg p-6"
     >
       {error && (
@@ -104,13 +129,17 @@ export default function ListingForm({
         <input
           type="text"
           id="title"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          {...register("title")}
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+            errors.title
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-indigo-500"
+          }`}
           placeholder="What are you offering?"
         />
+        {errors.title && (
+          <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+        )}
       </div>
 
       {/* Description */}
@@ -123,14 +152,20 @@ export default function ListingForm({
         </label>
         <textarea
           id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          required
+          {...register("description")}
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+            errors.description
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-indigo-500"
+          }`}
           placeholder="Describe your item in detail (condition, features, etc.)"
         />
+        {errors.description && (
+          <p className="mt-1 text-sm text-red-600">
+            {errors.description.message}
+          </p>
+        )}
       </div>
 
       {/* Images */}
@@ -159,7 +194,7 @@ export default function ListingForm({
           </div>
         )}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
-          {formData.images?.length < 8 && (
+          {previews.length < 8 && (
             <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-indigo-500 transition-colors">
               <input
                 ref={fileInputRef}
@@ -190,32 +225,32 @@ export default function ListingForm({
         <p className="text-xs text-gray-500">
           Upload up to 8 photos. First image will be the main photo.
         </p>
+        {errors.images && (
+          <p className="mt-1 text-sm text-red-600">{errors.images.message}</p>
+        )}
       </div>
 
       {/* Category */}
-      <div className="mb-6">
-        <label
-          htmlFor="category"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Category *
-        </label>
-        <select
-          id="category"
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-        >
-          <option value="">Select a category</option>
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-      </div>
+      <select
+        id="category"
+        {...register("category")}
+        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+          errors.category
+            ? "border-red-500 focus:ring-red-500"
+            : "border-gray-300 focus:ring-indigo-500"
+        }`}
+      >
+        <option value="">Select a category</option>
+        {categories.map((category) => (
+          <option key={category} value={category}>
+            {category}
+          </option>
+        ))}
+      </select>
+
+      {errors.category && (
+        <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>
+      )}
 
       {/* Condition */}
       <div className="mb-6">
@@ -227,18 +262,26 @@ export default function ListingForm({
         </label>
         <select
           id="condition"
-          name="condition"
-          value={formData.condition}
-          onChange={handleChange}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          {...register("condition")}
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+            errors.condition
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-indigo-500"
+          }`}
         >
+          <option value="">Select condition</option>
           <option value="new">Brand New</option>
           <option value="excellent">Like New</option>
           <option value="good">Good</option>
           <option value="fair">Fair</option>
           <option value="poor">Poor</option>
         </select>
+
+        {errors.condition && (
+          <p className="mt-1 text-sm text-red-600">
+            must select a valid item condition
+          </p>
+        )}
       </div>
 
       {/* Trade Preference */}
@@ -252,12 +295,15 @@ export default function ListingForm({
         <input
           type="text"
           id="tradePreference"
-          name="tradePreference"
-          value={formData.tradePreference}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          {...register("tradePreference")}
           placeholder="e.g., Gardening tools, books, electronics"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         />
+        {errors.tradePreference && (
+          <p className="mt-1 text-sm text-red-600">
+            {errors.tradePreference.message}
+          </p>
+        )}
       </div>
 
       {/* Location */}
@@ -271,12 +317,14 @@ export default function ListingForm({
         <input
           type="text"
           id="location"
-          name="location"
-          value={formData.location}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          {...register("location")}
           placeholder="Where is the item located?"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         />
+
+        {errors.location && (
+          <p className="mt-1 text-sm text-red-600">{errors.location.message}</p>
+        )}
       </div>
       <div className="flex justify-end">
         <button

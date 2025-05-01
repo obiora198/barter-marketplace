@@ -5,7 +5,7 @@ export interface Listing {
     description: string;
     images: string[];
     category: string;
-    condition: string;
+    condition: string | "good";
     tradePreference: string | null;
     location: string | null;
     createdAt: Date;
