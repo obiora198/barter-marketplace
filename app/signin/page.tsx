@@ -1,14 +1,24 @@
 'use client'
+
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { toast } from 'react-hot-toast'
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signInSchema } from "@/lib/validation/validatorSchema";
+import { z } from "zod";
+import LoadingScreen from "../components/LoadingScreen";
+
+type SignInFormData = z.infer<typeof signInSchema>;
 
 function SignInForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { register, handleSubmit, formState: { errors } } = useForm<SignInFormData>({
+    resolver: zodResolver(signInSchema),
+  });
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -16,25 +26,22 @@ function SignInForm() {
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const { data: session } = useSession();
 
-  const handleCredentialsSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: SignInFormData) => {
     setIsLoading(true);
     setError("");
 
     try {
       const result = await signIn("credentials", {
-        email,
-        password,
+        email: data.email,
+        password: data.password,
         redirect: false,
         callbackUrl,
       });
 
-      if (result?.error) {
-        throw new Error(result.error);
-      }
+      if (result?.error) throw new Error(result.error);
 
       if (result?.ok) {
-        toast.success('Login successfull')
+        toast.success("Login successful");
         router.push(callbackUrl);
       }
     } catch (err) {
@@ -46,7 +53,6 @@ function SignInForm() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    setError("");
     try {
       await signIn("google", { callbackUrl });
     } catch (err) {
@@ -64,40 +70,34 @@ function SignInForm() {
   return (
     <div className="max-w-md mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Sign In</h1>
-      
+
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleCredentialsSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label htmlFor="email" className="block mb-1">
-            Email Address
-          </label>
+          <label htmlFor="email" className="block mb-1">Email Address</label>
           <input
             id="email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register("email")}
             className="w-full p-2 border rounded"
-            required
           />
+          {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
         </div>
 
         <div>
-          <label htmlFor="password" className="block mb-1">
-            Password
-          </label>
+          <label htmlFor="password" className="block mb-1">Password</label>
           <input
             id="password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register("password")}
             className="w-full p-2 border rounded"
-            required
           />
+          {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
         </div>
 
         <div className="text-sm text-right">
@@ -159,8 +159,8 @@ function SignInForm() {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoadingScreen />}>
       <SignInForm />
     </Suspense>
-  )
+  );
 }

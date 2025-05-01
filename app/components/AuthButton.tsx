@@ -13,6 +13,7 @@ export default function AuthButton() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  console.log(session?.user.image)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

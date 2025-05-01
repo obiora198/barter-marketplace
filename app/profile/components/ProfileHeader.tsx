@@ -13,7 +13,6 @@ interface ProfileHeaderProps {
     user,
     listingsCount 
   }: ProfileHeaderProps) {
-    console.log(user)
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
