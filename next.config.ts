@@ -13,6 +13,24 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Fixes npm packages that depend on `net` module
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        net: false,
+        tls: false,
+        fs: false,
+        child_process: false,
+      };
+    }
+    return config;
+  },
+  // Enable WebSocket support
+  api: {
+    bodyParser: false,
+    externalResolver: true,
+  },
 };
 
 export default nextConfig;

@@ -38,20 +38,23 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  bio           String?
-  location      String?
-  rating        Float?    @default(0.0)
-  tradeCount    Int       @default(0)
-
-  accounts Account[]
-  sessions Session[]
-  listings Listing[]
+  id                     String         @id @default(auto()) @map("_id") @db.ObjectId
+  name                   String?
+  email                  String?        @unique
+  emailVerified          DateTime?
+  image                  String?
+  password               String?
+  bio                    String?
+  location               String?
+  rating                 Float?         @default(0.0)
+  tradeCount             Int            @default(0)
+  conversationsAsOfferer Conversation[] @relation("Offerer")
+  conversationsAsOwner   Conversation[] @relation("Owner")
+  accounts               Account[]
+  sessions               Session[]
+  listings               Listing[]
+  messages               Message[]
+  Offers                 Offer[]
 }
 
 model VerificationToken {
@@ -65,18 +68,69 @@ model VerificationToken {
 }
 
 model Listing {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
   title           String
   description     String
   images          String[]
   category        String
-  condition       String   @default("good")
+  condition       String         @default("good")
   tradePreference String?
   location        String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  ownerId         String   @db.ObjectId
-  offers          String[] @default([])
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  ownerId         String         @db.ObjectId
+  offers          Offer[]
+  conversations   Conversation[]
 
   owner User @relation(fields: [ownerId], references: [id])
+}
+
+model Offer {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  listingId      String      @db.ObjectId
+  senderId       String      @db.ObjectId
+  initialMessage String?
+  createdAt      DateTime    @default(now())
+  status         OfferStatus @default(PENDING)
+
+  listing      Listing       @relation(fields: [listingId], references: [id])
+  sender       User          @relation(fields: [senderId], references: [id])
+  conversation Conversation?
+
+  @@index([listingId, senderId])
+}
+
+model Conversation {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  offerId   String    @unique @db.ObjectId
+  listingId String    @db.ObjectId
+  offererId String    @db.ObjectId
+  ownerId   String    @db.ObjectId
+  createdAt DateTime  @default(now())
+  messages  Message[]
+
+  offer   Offer   @relation(fields: [offerId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id])
+  offerer User    @relation("Offerer", fields: [offererId], references: [id])
+  owner   User    @relation("Owner", fields: [ownerId], references: [id])
+
+  @@unique([listingId, offererId], name: "listingId_offererId")
+}
+
+model Message {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String   @db.ObjectId
+  senderId       String   @db.ObjectId
+  text           String
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  sender       User         @relation(fields: [senderId], references: [id])
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  UNDER_NEGOTIATION
 }

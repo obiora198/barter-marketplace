@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  output   = "app/generated/prisma/client"
+  output        = "app/generated/prisma/client"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -10,18 +10,18 @@ datasource db {
 }
 
 model Account {
-  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String  @db.ObjectId
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id])
 
@@ -34,7 +34,7 @@ model Session {
   userId       String   @db.ObjectId
   expires      DateTime
 
-  user         User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 model User {
@@ -48,10 +48,13 @@ model User {
   location      String?
   rating        Float?    @default(0.0)
   tradeCount    Int       @default(0)
-
-  accounts      Account[]
-  sessions      Session[]
-  listings      Listing[]
+  conversationsAsOfferer Conversation[] @relation("Offerer")
+  conversationsAsOwner   Conversation[] @relation("Owner")
+  accounts Account[]
+  sessions Session[]
+  listings Listing[]
+  messages Message[]
+  Offers   Offer[]
 }
 
 model VerificationToken {
@@ -76,7 +79,59 @@ model Listing {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   ownerId         String   @db.ObjectId
-  offers          String[] @default([])
+  offers          Offer[]
+  conversations   Conversation[]
 
-  owner           User     @relation(fields: [ownerId], references: [id])
+  owner User @relation(fields: [ownerId], references: [id])
+}
+
+model Offer {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  listingId      String      @db.ObjectId
+  senderId       String      @db.ObjectId
+  initialMessage String?
+  createdAt      DateTime    @default(now())
+  status         OfferStatus @default(PENDING)
+
+  listing      Listing       @relation(fields: [listingId], references: [id])
+  sender       User          @relation(fields: [senderId], references: [id])
+  conversation Conversation? 
+
+  @@index([listingId, senderId])
+}
+
+model Conversation {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  offerId      String   @unique @db.ObjectId
+  listingId    String   @db.ObjectId
+  offererId    String   @db.ObjectId
+  ownerId      String   @db.ObjectId
+  createdAt    DateTime @default(now())
+  messages     Message[]
+
+  offer        Offer    @relation(fields: [offerId], references: [id])
+  listing      Listing  @relation(fields: [listingId], references: [id])
+  offerer      User     @relation("Offerer", fields: [offererId], references: [id])
+  owner        User     @relation("Owner", fields: [ownerId], references: [id])
+
+  @@unique([listingId, offererId], name: "listingId_offererId")
+}
+
+
+model Message {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String   @db.ObjectId
+  senderId       String   @db.ObjectId
+  text           String
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  sender       User         @relation(fields: [senderId], references: [id])
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  UNDER_NEGOTIATION
 }

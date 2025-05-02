@@ -15,10 +15,32 @@ export interface Listing {
   
   export interface User {
     id: string;
-    name: string | null;
-    email: string | null;
-    image?: string | null;
+    name: string;
+    email: string;
+    image?: string;
     bio?: string | null;
     location?: string | null;
     listings: Listing[];
+  }
+
+  export interface Message {
+    id: string;
+    text: string;
+    senderId: string;
+    conversationId: string;
+    createdAt: string;
+    updatedAt: string;
+  }
+  
+  export interface Conversation {
+    id: string;
+    otherUser: User;
+    lastMessage?: {
+      id: string;
+      text: string;
+      createdAt: string;
+    };
+    unreadCount: number;
+    createdAt: string;
+    updatedAt: string;
   }

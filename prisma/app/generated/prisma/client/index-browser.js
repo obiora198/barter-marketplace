@@ -163,8 +163,33 @@ exports.Prisma.ListingScalarFieldEnum = {
   location: 'location',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  ownerId: 'ownerId'
+};
+
+exports.Prisma.OfferScalarFieldEnum = {
+  id: 'id',
+  listingId: 'listingId',
+  senderId: 'senderId',
+  initialMessage: 'initialMessage',
+  createdAt: 'createdAt',
+  status: 'status'
+};
+
+exports.Prisma.ConversationScalarFieldEnum = {
+  id: 'id',
+  offerId: 'offerId',
+  listingId: 'listingId',
+  offererId: 'offererId',
   ownerId: 'ownerId',
-  offers: 'offers'
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  senderId: 'senderId',
+  text: 'text',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -176,14 +201,22 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
-
+exports.OfferStatus = exports.$Enums.OfferStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  UNDER_NEGOTIATION: 'UNDER_NEGOTIATION'
+};
 
 exports.Prisma.ModelName = {
   Account: 'Account',
   Session: 'Session',
   User: 'User',
   VerificationToken: 'VerificationToken',
-  Listing: 'Listing'
+  Listing: 'Listing',
+  Offer: 'Offer',
+  Conversation: 'Conversation',
+  Message: 'Message'
 };
 
 /**

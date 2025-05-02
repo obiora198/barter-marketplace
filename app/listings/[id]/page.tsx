@@ -10,6 +10,7 @@ import {
   FaInfoCircle,
 } from "react-icons/fa";
 import ImageCarousel from "../../components/ImageCarousel";
+import OfferForm from './components/OfferForm'
 
 export default async function ListingPage({params}: {params: Promise<{ id: string }>}) {
   const listingId = (await params).id;
@@ -101,30 +102,9 @@ export default async function ListingPage({params}: {params: Promise<{ id: strin
             <FaExchangeAlt className="mr-2 text-indigo-600" /> Make an Offer
           </h2>
 
-          <form className="space-y-4">
-            <div>
-              <label
-                htmlFor="offer"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                What are you offering?
-              </label>
-              <textarea
-                id="offer"
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Describe what you'd like to trade for this item..."
-                required
-              ></textarea>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition duration-150"
-            >
-              Submit Offer
-            </button>
-          </form>
+          <OfferForm 
+          listingId={listingId}
+          />
 
           <div className="mt-4 text-center text-sm text-gray-500">
             By submitting, you agree to our{" "}

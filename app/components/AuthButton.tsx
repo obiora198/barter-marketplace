@@ -74,7 +74,7 @@ export default function AuthButton() {
             </Link>
 
             <Link
-              href="/messages"
+              href="/conversations"
               onClick={() => setIsOpen(false)}
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
             >
