@@ -6,11 +6,13 @@ import { JSX } from "react";
 
 interface MessageInputProps {
   conversationId: string;
+  currentUser: string;
   onMessageSent?: (message: Message) => void;
   onTyping?: (isTyping: boolean) => void;
 }
 
 export default function MessageInput({ 
+  currentUser,
   conversationId, 
   onMessageSent,
   onTyping 
@@ -56,7 +58,7 @@ export default function MessageInput({
       const message = {
         text: text.trim(),
         conversationId,
-        senderId: "", // Will be set on server
+        senderId: currentUser, 
         createdAt: new Date().toISOString(),
       };
 

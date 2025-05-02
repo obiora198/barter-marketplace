@@ -2,15 +2,17 @@
 
 import React from "react";
 import Link from "next/link";
-import Head from "next/head";
 import { useSession } from "next-auth/react";
 import SearchBar from "./SearchBar";
 import AuthButton from "./AuthButton";
 import { Menu, X } from "lucide-react";
+import LoadingScreen from "./LoadingScreen";
 
 const Navigation = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  if (status === "loading") return <LoadingScreen />;
 
   return (
     <header>

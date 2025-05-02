@@ -49,25 +49,29 @@ export default function ChatWindow({
         const isDuplicate = prev.some(
           (m) =>
             (m.id && m.id === message.id) || // exact match by ID
-            (!m.id && m.senderId === message.senderId && m.text === message.text) // optimistic match
+            (!m.id &&
+              m.senderId === message.senderId &&
+              m.text === message.text) // optimistic match
         );
-    
+
         if (isDuplicate) return prev;
-    
+
         // Optionally: remove matching optimistic message before adding the real one
         const filtered = prev.filter(
           (m) =>
-            !( // remove if:
-              !m.id &&
-              m.senderId === message.senderId &&
-              m.text === message.text
+            !(
+              // remove if:
+              (
+                !m.id &&
+                m.senderId === message.senderId &&
+                m.text === message.text
+              )
             )
         );
-    
+
         return [...filtered, message];
       });
     });
-    
 
     // Set up typing indicator listener
     socket.on("userTyping", (data: { userId: string; isTyping: boolean }) => {
@@ -88,7 +92,7 @@ export default function ChatWindow({
       setError(null);
 
       try {
-        const messagesRes = await fetch(`/api/conversations/${conversationId}`)
+        const messagesRes = await fetch(`/api/conversations/${conversationId}`);
 
         if (!messagesRes.ok) {
           throw new Error("Failed to fetch data");
@@ -98,7 +102,6 @@ export default function ChatWindow({
 
         setMessages(messagesData.messages);
         setOtherUser(messagesData.otherUser);
-        console.log(messagesData.me)
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load messages. Please try again.");
@@ -116,10 +119,7 @@ export default function ChatWindow({
     // Optimistically update UI
     setMessages((prev) => [...prev, newMessage]);
 
-    // Send via WebSocket
-    if (socket) {
-      socket.emit("newMessage", newMessage);
-    }
+    socket?.emit("newMessage", newMessage);
   };
 
   const handleTyping = (isTyping: boolean) => {
@@ -133,7 +133,6 @@ export default function ChatWindow({
   };
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
-
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -191,14 +190,14 @@ export default function ChatWindow({
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.map((msg) => (
+      <div className="flex-1 overflow-y-auto flex flex-col p-4 space-y-3">
+        {messages.map((msg, index) => (
           <div
-            key={msg.id}
-            className={`p-2 rounded-lg ${
+            key={msg.id || `temp-${index}`}
+            className={`p-2 rounded-lg max-w-xs ${
               msg.senderId === session.user.id
-                ? "bg-blue-100 self-end"
-                : "bg-gray-100 self-start"
+                ? "bg-blue-100 self-end ml-auto"
+                : "bg-gray-100 self-start mr-auto"
             }`}
           >
             <div className="text-sm text-gray-700">{msg.text}</div>
@@ -210,7 +209,7 @@ export default function ChatWindow({
           </div>
         ))}
 
-        {/* <div ref={bottomRef} /> */}
+        <div ref={bottomRef} />
       </div>
 
       {/* Message input */}
@@ -219,6 +218,7 @@ export default function ChatWindow({
           conversationId={conversationId}
           onMessageSent={handleNewMessage}
           onTyping={handleTyping}
+          currentUser={session.user.id}
         />
       </div>
     </div>

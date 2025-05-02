@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SessionWrapper from "../app/components/SessionWrapper";
 import Navigation from "./components/Navigation";
+import LayoutWrapper from './components/LayoutWrapper'
 import Footer from "../app/components/Footer";
 import { Toaster } from "react-hot-toast";
 import Head from "next/head";
@@ -55,8 +56,7 @@ export default async function RootLayout({
         <SessionWrapper>
           <Navigation />
           <Toaster position="top-right" />
-          {children}
-          <Footer />
+          <LayoutWrapper>{children}</LayoutWrapper>
         </SessionWrapper>
       </body>
     </html>

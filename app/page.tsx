@@ -7,6 +7,7 @@ import { authOptions } from "@/lib/auth";
 
 export default function HomePage() {
   const session = getServerSession(authOptions);
+  
 
   return (
     <>

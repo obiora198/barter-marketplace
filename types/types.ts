@@ -29,7 +29,7 @@ export interface Listing {
     senderId: string;
     conversationId: string;
     createdAt: string;
-    updatedAt: string;
+    sender: Partial<User>;
   }
   
   export interface Conversation {
