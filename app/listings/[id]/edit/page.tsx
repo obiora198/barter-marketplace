@@ -7,9 +7,11 @@ import Head from "next/head";
 import Link from "next/link";
 import ListingForm from "../../../create-listing/components/ListingForm";
 import { Listing } from "../../../../types/types";
+import LoadingScreen from "@/app/components/LoadingScreen";
 
 const EditListing = () => {
-  const listingId = useParams().id;
+  const params = useParams();
+  const listingId = params?.id ?? "";
   const { data: session } = useSession();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -109,11 +111,9 @@ const EditListing = () => {
     );
   }
 
-  if (!listingData) {
+  if (!listingData || listingId === '') {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">Loading...</h2>
-      </div>
+      <LoadingScreen />
     );
   }
 
