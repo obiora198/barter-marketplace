@@ -140,7 +140,7 @@ export default function ChatWindow({
 
   if (!session) return <div>Please sign in to view messages</div>;
   return (
-    <div className="flex-1 flex flex-col h-full">
+    <div className="flex-1 flex flex-col h-full rounded-md">
       {/* Chat header */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center">

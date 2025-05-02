@@ -40,9 +40,9 @@ export default function MessageLayout() {
     return <div>Please sign in to view messages</div>;
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-68px)] bg-gray-50">
+    <div className="flex flex-col md:flex-row sm:gap-4  h-[calc(100vh-68px)] bg-gray-100 sm:p-4">
       {/* Sidebar (hidden on mobile, shown on md+) */}
-      <div className="md:w-80 overflow-y-auto md:block hidden border-r border-gray-200">
+      <div className="md:w-80 overflow-y-auto md:block hidden border-r border-gray-50 rounded-md">
         <ConversationList
           conversations={conversations as Conversation[]}
           selectedId={selectedId || undefined}

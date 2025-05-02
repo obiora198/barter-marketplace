@@ -36,7 +36,7 @@ export default function ConversationList({
   onSelect,
 }: ConversationListProps) {
   return (
-    <aside className="w-full h-full bg-white">
+    <aside className="w-full h-full bg-white rounded-md">
       <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
         <h2 className="text-xl font-bold text-gray-800">Messages</h2>
       </div>

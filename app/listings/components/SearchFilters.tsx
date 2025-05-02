@@ -15,7 +15,8 @@ export default function SearchFilters({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const params = new URLSearchParams(useSearchParams());
+  const useParams = useSearchParams();
+  const params = new URLSearchParams(useParams || '');
 
   const handleFilter = (name: string, value: string) => {
     if (value) {
