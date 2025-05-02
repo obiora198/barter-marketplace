@@ -8,7 +8,7 @@ import { Session } from "next-auth";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   const session = await getServerSession(authOptions) as Session & { user: { id: string } };
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

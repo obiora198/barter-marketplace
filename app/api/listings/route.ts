@@ -42,7 +42,7 @@ export async function POST(request: Request) {
         location,
         images,
         ownerId: session.user.id,
-        offers: [],
+        // offers: [],
       },
     });
 
