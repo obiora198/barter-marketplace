@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation'
 const page = async () => {
   const session = await getServerSession(authOptions) 
   if (!session || !session.user?.email) {
-    redirect('/signIn');
+    redirect('/signin');
   }
 
   return (

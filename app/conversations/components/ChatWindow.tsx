@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Message, User } from "@/types/types";
 import { useSession } from "next-auth/react";
 import MessageInput from "./MessageInput";
@@ -13,7 +13,10 @@ interface ChatWindowProps {
   onBack?: () => void;
 }
 
-export default function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
+export default function ChatWindow({
+  conversationId,
+  onBack,
+}: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,11 +45,32 @@ export default function ChatWindow({ conversationId, onBack }: ChatWindowProps) 
 
     // Set up message listener
     socket.on("messageReceived", (message: Message) => {
-      setMessages(prev => [...prev, message]);
+      setMessages((prev) => {
+        const isDuplicate = prev.some(
+          (m) =>
+            (m.id && m.id === message.id) || // exact match by ID
+            (!m.id && m.senderId === message.senderId && m.text === message.text) // optimistic match
+        );
+    
+        if (isDuplicate) return prev;
+    
+        // Optionally: remove matching optimistic message before adding the real one
+        const filtered = prev.filter(
+          (m) =>
+            !( // remove if:
+              !m.id &&
+              m.senderId === message.senderId &&
+              m.text === message.text
+            )
+        );
+    
+        return [...filtered, message];
+      });
     });
+    
 
     // Set up typing indicator listener
-    socket.on("userTyping", (data: {userId: string, isTyping: boolean}) => {
+    socket.on("userTyping", (data: { userId: string; isTyping: boolean }) => {
       if (data.userId !== session?.user.id) {
         setIsTyping(data.isTyping);
       }
@@ -62,22 +86,19 @@ export default function ChatWindow({ conversationId, onBack }: ChatWindowProps) 
     const fetchInitialData = async () => {
       setIsLoading(true);
       setError(null);
-      
-      try {
-        const [messagesRes, conversationRes] = await Promise.all([
-          fetch(`/api/conversations/${conversationId}`),
-          fetch(`/api/conversations/${conversationId}`),
-        ]);
 
-        if (!messagesRes.ok || !conversationRes.ok) {
+      try {
+        const messagesRes = await fetch(`/api/conversations/${conversationId}`)
+
+        if (!messagesRes.ok) {
           throw new Error("Failed to fetch data");
         }
 
         const messagesData = await messagesRes.json();
-        const conversationData = await conversationRes.json();
-        
-        setMessages(messagesData);
-        setOtherUser(conversationData.otherUser);
+
+        setMessages(messagesData.messages);
+        setOtherUser(messagesData.otherUser);
+        console.log(messagesData.me)
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load messages. Please try again.");
@@ -93,8 +114,8 @@ export default function ChatWindow({ conversationId, onBack }: ChatWindowProps) 
 
   const handleNewMessage = (newMessage: Message) => {
     // Optimistically update UI
-    setMessages(prev => [...prev, newMessage]);
-    
+    setMessages((prev) => [...prev, newMessage]);
+
     // Send via WebSocket
     if (socket) {
       socket.emit("newMessage", newMessage);
@@ -106,25 +127,41 @@ export default function ChatWindow({ conversationId, onBack }: ChatWindowProps) 
       socket.emit("typing", {
         conversationId,
         userId: session.user.id,
-        isTyping
+        isTyping,
       });
     }
   };
 
-  if (!session) return <div>Please sign in to view messages</div>;
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  if (!session) return <div>Please sign in to view messages</div>;
   return (
     <div className="flex-1 flex flex-col h-full">
       {/* Chat header */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center">
           {onBack && (
-            <button 
+            <button
               onClick={onBack}
               className="md:hidden mr-2 text-gray-500 hover:text-gray-700"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
             </button>
           )}
@@ -155,13 +192,31 @@ export default function ChatWindow({ conversationId, onBack }: ChatWindowProps) 
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {/* ... (same message rendering as before) ... */}
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`p-2 rounded-lg ${
+              msg.senderId === session.user.id
+                ? "bg-blue-100 self-end"
+                : "bg-gray-100 self-start"
+            }`}
+          >
+            <div className="text-sm text-gray-700">{msg.text}</div>
+            <div className="text-xs text-gray-400">
+              {formatDistanceToNow(new Date(msg.createdAt), {
+                addSuffix: true,
+              })}
+            </div>
+          </div>
+        ))}
+
+        {/* <div ref={bottomRef} /> */}
       </div>
 
       {/* Message input */}
       <div className="p-4 bg-white border-t border-gray-200">
-        <MessageInput 
-          conversationId={conversationId} 
+        <MessageInput
+          conversationId={conversationId}
           onMessageSent={handleNewMessage}
           onTyping={handleTyping}
         />

@@ -14,9 +14,13 @@ export async function GET(req: NextRequest, { params }: { params: { conversation
     where: { id: conversationId },
     include: {
       messages: {
-        include: { sender: { select: { id: true, name: true, image: true } } },
+        include: {
+          sender: { select: { id: true, name: true, image: true } },
+        },
         orderBy: { createdAt: "asc" },
       },
+      owner: { select: { id: true, name: true, image: true } },
+      offerer: { select: { id: true, name: true, image: true } },
     },
   });
 
@@ -29,5 +33,10 @@ export async function GET(req: NextRequest, { params }: { params: { conversation
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  return NextResponse.json(conversation.messages);
+  const otherUser = conversation.ownerId === userId ? conversation.offerer : conversation.owner;
+
+  return NextResponse.json({
+    messages: conversation.messages,
+    otherUser,
+  });
 }
