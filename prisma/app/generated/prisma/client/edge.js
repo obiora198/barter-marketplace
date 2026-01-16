@@ -201,7 +201,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\emmanuel\\Desktop\\Projects\\barter-marketplace\\prisma\\app\\generated\\prisma\\client",
+      "value": "/vercel/sandbox/primary/prisma/app/generated/prisma/client",
       "fromEnvVar": null
     },
     "config": {
@@ -210,7 +210,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "rhel-openssl-3.0.x",
         "native": true
       },
       {
@@ -219,12 +219,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\emmanuel\\Desktop\\Projects\\barter-marketplace\\prisma\\schema.prisma",
+    "sourceFilePath": "/vercel/sandbox/primary/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../../../../.env",
-    "schemaEnvPath": "../../../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../..",
   "clientVersion": "6.6.0",
